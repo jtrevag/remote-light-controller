@@ -27,14 +27,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class LightActivity extends AppCompatActivity {
 
-    HashMap<String, Switch> switchMap = new HashMap<String, Switch>();
-    String lightServiceUrl = "173.74.40.164:3000/lightService";
+    private HashMap<String, Switch> switchMap = new HashMap<String, Switch>();
+    private String lightServiceUrl = "http://173.74.40.164:3000/lightService";
+    private RequestQueue requestQueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,90 +45,21 @@ public class LightActivity extends AppCompatActivity {
         setContentView(R.layout.activity_light);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
-        Switch computerSwitch = (Switch) findViewById(R.id.switch5);
-        switchMap.put("computer_room", computerSwitch);
-
-        computerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                StringRequest sr = null;
-
-                if(isChecked){
-                    sr = new StringRequest(Request.Method.PUT,"http://173.74.40.164:3000/lightService", new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            //mPostCommentResponse.requestCompleted();
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            //mPostCommentResponse.requestEndedWithError(error);
-                        }
-                    }){
-                        @Override
-                        protected Map<String,String> getParams(){
-                            Map<String,String> params = new HashMap<String, String>();
-                            params.put("room","computer_room");
-                            params.put("state","on");
-                            return params;
-                        }
-
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            Map<String,String> params = new HashMap<String, String>();
-                            params.put("Content-Type","application/x-www-form-urlencoded");
-                            return params;
-                        }
-                    };
-
-                }
-                else{
-                    sr = new StringRequest(Request.Method.PUT,"http://173.74.40.164:3000/lightService", new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            //mPostCommentResponse.requestCompleted();
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            //mPostCommentResponse.requestEndedWithError(error);
-                        }
-                    }){
-                        @Override
-                        protected Map<String,String> getParams(){
-                            Map<String,String> params = new HashMap<String, String>();
-                            params.put("room","computer_room");
-                            params.put("state","off");
-                            return params;
-                        }
-
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            Map<String,String> params = new HashMap<String, String>();
-                            params.put("Content-Type","application/x-www-form-urlencoded");
-                            return params;
-                        }
-                    };
-                }
-
-                ((LightApplication) getApplication()).getRequestQueue().add(sr);
-
-            }
-        });
+        requestQueue = ((LightApplication) getApplication()).getRequestQueue();
+        initializeSwitches();
 
 
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu (Menu menu){
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_light, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected (MenuItem item){
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -137,6 +71,85 @@ public class LightActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void checkSwitchAndSendRequest ( boolean isChecked, String roomName, RequestQueue
+    requestQueue){
+        LightSwitchRequest lsr = null;
+
+        if (isChecked) {
+            lsr = new LightSwitchRequest(Request.Method.PUT, lightServiceUrl, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    //mPostCommentResponse.requestCompleted();
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //mPostCommentResponse.requestEndedWithError(error);
+                }
+            }, roomName, "on");
+
+        } else {
+            lsr = new LightSwitchRequest(Request.Method.PUT, lightServiceUrl, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    //mPostCommentResponse.requestCompleted();
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //mPostCommentResponse.requestEndedWithError(error);
+                }
+            }, roomName, "off");
+        }
+
+
+        requestQueue.add(lsr);
+    }
+
+    private void initializeSwitches(){
+        final SuperLightSwitch computerSwitch = new SuperLightSwitch( (Switch) findViewById(R.id.computerRoomSwitch), "computer_room");
+
+        computerSwitch.getLightSwitch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                checkSwitchAndSendRequest(isChecked, computerSwitch.getRoomName(), requestQueue);
+            }
+        });
+
+        final SuperLightSwitch kitchenSwitch = new SuperLightSwitch( (Switch) findViewById(R.id.kitchenSwitch), "living_room_back");
+
+        kitchenSwitch.getLightSwitch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                checkSwitchAndSendRequest(isChecked, kitchenSwitch.getRoomName(), requestQueue);
+            }
+        });
+
+        final SuperLightSwitch livingRoomSwitch = new SuperLightSwitch( (Switch) findViewById(R.id.livingRoomSwitch), "living_room_front");
+
+        livingRoomSwitch.getLightSwitch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                checkSwitchAndSendRequest(isChecked, livingRoomSwitch.getRoomName(), requestQueue);
+            }
+        });
+
+        final SuperLightSwitch bedroomOneSwitch = new SuperLightSwitch( (Switch) findViewById(R.id.bedroomSwitch1), "bedroom_one");
+
+        bedroomOneSwitch.getLightSwitch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                checkSwitchAndSendRequest(isChecked, bedroomOneSwitch.getRoomName(), requestQueue);
+            }
+        });
+
+        final SuperLightSwitch bedroomTwoSwitch = new SuperLightSwitch( (Switch) findViewById(R.id.bedroomSwitch2), "bedroom_two");
+
+        bedroomTwoSwitch.getLightSwitch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                checkSwitchAndSendRequest(isChecked, bedroomTwoSwitch.getRoomName(), requestQueue);
+            }
+        });
+
+
     }
 
 }

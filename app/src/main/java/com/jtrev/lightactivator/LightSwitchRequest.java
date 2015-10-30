@@ -42,6 +42,8 @@ public class LightSwitchRequest extends StringRequest {
         return params;
     }
 
+
+
     public String getRoom() {
         return room;
     }

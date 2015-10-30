@@ -9,77 +9,95 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_light" tools:context=".LightActivity">
 
-    <Switch
+    <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="20dp"
         android:text="Kitchen"
-        android:id="@+id/kitchenSwitch"
-        android:checked="false"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:switchMinWidth="56dp"
-        android:thumb="@drawable/thumb"
-        android:track="@drawable/track"/>
-
-    <Switch
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Living Room"
-        android:id="@+id/livingRoomSwitch"
-        android:checked="false"
-        android:layout_below="@+id/kitchenSwitch"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <Switch
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Computer Room"
-        android:id="@+id/computerRoomSwitch"
-        android:checked="false"
-        android:layout_below="@+id/livingRoomSwitch"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <Switch
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Bedroom 1"
-        android:id="@+id/bedroomSwitch1"
-        android:checked="false"
-        android:layout_below="@+id/computerRoomSwitch"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <Switch
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Bedroom 2"
-        android:id="@+id/bedroomSwitch2"
-        android:checked="false"
-        android:layout_below="@+id/bedroomSwitch1"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:id="@+id/kitchenTextView"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 
     <ToggleButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="New ToggleButton"
-        android:id="@+id/toggleButton"
-        android:layout_centerVertical="true"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:text="Kitchen"
+        android:id="@+id/kitchenToggleButton"
+        android:checked="false"
+        android:layout_below="@+id/kitchenTextView"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentStart="true" />
+
+    <ToggleButton
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:text="Living Room"
+        android:id="@+id/livingRoomtoggleButton"
+        android:checked="false"
+        android:layout_below="@+id/livingRoomTextView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <ToggleButton
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:text="Computer Room"
+        android:id="@+id/computerRoomToggleButton"
+        android:checked="false"
+        android:layout_below="@+id/computerRoomTextView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <ToggleButton
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:text="Bedroom Left"
+        android:id="@+id/bedroomLeftToggleButton"
+        android:checked="false"
+        android:layout_below="@+id/bedroomLeftTextView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <ToggleButton
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:text="Bedroom Right"
+        android:id="@+id/bedroomRightToggleButton"
+        android:checked="false"
+        android:layout_below="@+id/bedromRightTextView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:text="Living Room"
+        android:id="@+id/livingRoomTextView"
+        android:layout_below="@+id/kitchenToggleButton"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:text="Computer Room"
+        android:id="@+id/computerRoomTextView"
+        android:layout_below="@+id/livingRoomtoggleButton"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:text="Bedroom Left"
+        android:id="@+id/bedroomLeftTextView"
+        android:layout_below="@+id/computerRoomToggleButton"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:text="Bedroom Right"
+        android:id="@+id/bedromRightTextView"
+        android:layout_below="@+id/bedroomLeftToggleButton"
+        android:layout_centerHorizontal="true" />
+
 
 </RelativeLayout>

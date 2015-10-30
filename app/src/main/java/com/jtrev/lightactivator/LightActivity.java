@@ -1,17 +1,14 @@
 package com.jtrev.lightactivator;
 
-import android.app.Application;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
-import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -19,23 +16,16 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class LightActivity extends AppCompatActivity {
 
-    private HashMap<String, Switch> switchMap = new HashMap<String, Switch>();
+    private HashMap<String, ToggleButton> switchMap = new HashMap<String, ToggleButton>();
+    private ArrayList<String> lightRooms = new ArrayList<String>();
     private String lightServiceUrl = "http://173.74.40.164:3000/lightService";
     private RequestQueue requestQueue;
 
@@ -45,10 +35,21 @@ public class LightActivity extends AppCompatActivity {
         setContentView(R.layout.activity_light);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        populateLightArrayList();
         requestQueue = ((LightApplication) getApplication()).getRequestQueue();
         initializeSwitches();
+        TextView kitchenText = (TextView) findViewById(R.id.kitchenTextView);
 
 
+    }
+
+    private void populateLightArrayList() {
+        switchMap.put("living_room_front", (ToggleButton) findViewById(R.id.livingRoomtoggleButton));
+        switchMap.put("living_room_back", (ToggleButton) findViewById(R.id.kitchenToggleButton));
+        switchMap.put("computer_room", (ToggleButton) findViewById(R.id.computerRoomToggleButton));
+        switchMap.put("bedroom_one", (ToggleButton) findViewById(R.id.bedroomRightToggleButton));
+        switchMap.put("bedroom_two", (ToggleButton) findViewById(R.id.bedroomLeftToggleButton));
     }
 
     @Override
@@ -108,48 +109,50 @@ public class LightActivity extends AppCompatActivity {
         requestQueue.add(lsr);
     }
 
+    /**
+     * Iterate through the map of ToggleButtons and set the OnCheckChangeListener for all of them.
+     * The key is the actual name of the room in mongoDB, and the value is the ToggleButton.
+     * We send the key to the method checkSwitchAndSendRequest so we can
+     *
+     */
     private void initializeSwitches(){
-        final SuperLightSwitch computerSwitch = new SuperLightSwitch( (Switch) findViewById(R.id.computerRoomSwitch), "computer_room");
+        Iterator<Map.Entry<String, ToggleButton>> iterator = switchMap.entrySet().iterator();
+        while(iterator.hasNext()){
+            final Map.Entry<String,ToggleButton> light = iterator.next();
+            light.getValue().setChecked(getLightStatus(light.getKey()));
+            light.getValue().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    checkSwitchAndSendRequest(isChecked, light.getKey(), requestQueue);
+                }
+            });
 
-        computerSwitch.getLightSwitch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                checkSwitchAndSendRequest(isChecked, computerSwitch.getRoomName(), requestQueue);
-            }
+        }
+
+    }
+
+    private boolean getLightStatus(final String roomName) {
+        StringRequest sr = null;
+
+        String getUrl = lightServiceUrl + "?room=" + roomName;
+        sr = new StringRequest(Request.Method.GET, getUrl, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.d("lightActivity", "Roomname: " + roomName +" Got response: " + response);
+
+                }
+                  }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.w("lightActivity", "Got an error:" + error);
+                //mPostCommentResponse.requestEndedWithError(error);
+        }
         });
 
-        final SuperLightSwitch kitchenSwitch = new SuperLightSwitch( (Switch) findViewById(R.id.kitchenSwitch), "living_room_back");
-
-        kitchenSwitch.getLightSwitch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                checkSwitchAndSendRequest(isChecked, kitchenSwitch.getRoomName(), requestQueue);
-            }
-        });
-
-        final SuperLightSwitch livingRoomSwitch = new SuperLightSwitch( (Switch) findViewById(R.id.livingRoomSwitch), "living_room_front");
-
-        livingRoomSwitch.getLightSwitch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                checkSwitchAndSendRequest(isChecked, livingRoomSwitch.getRoomName(), requestQueue);
-            }
-        });
-
-        final SuperLightSwitch bedroomOneSwitch = new SuperLightSwitch( (Switch) findViewById(R.id.bedroomSwitch1), "bedroom_one");
-
-        bedroomOneSwitch.getLightSwitch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                checkSwitchAndSendRequest(isChecked, bedroomOneSwitch.getRoomName(), requestQueue);
-            }
-        });
-
-        final SuperLightSwitch bedroomTwoSwitch = new SuperLightSwitch( (Switch) findViewById(R.id.bedroomSwitch2), "bedroom_two");
-
-        bedroomTwoSwitch.getLightSwitch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                checkSwitchAndSendRequest(isChecked, bedroomTwoSwitch.getRoomName(), requestQueue);
-            }
-        });
+        requestQueue.add(sr);
 
 
+
+        return false;
     }
 
 }
